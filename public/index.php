@@ -1,141 +1,115 @@
 <?php
+
 abstract class Product
 {
-  public $title = 'Товар';
-  public $description = 'Самый лучший товар';
-  public $size = 'Средний';
-  public $price = 1000;
+  private $cost;
+  const PROFIT = 10;//Профит 10%
 
-  public function __construct(string $title, string $description, string $size, int $price)
-  {
-    $this->title = $title;
-    $this->description = $description;
-    $this->size = $size;
-    $this->price = $price;
+  abstract public function finalCost();// Финальная стоимость товара с учётом кол-ва или веса
+
+  abstract public function profit();  // Доход получаемый с продажи товара с учётом PROFIT
+
+  public function render(){
+    echo 'Стоимость - ' . $this->finalCost() . ' рублей. Прибыль - ' . $this->profit() . ' рублей<br>';
   }
 
-  public function render()
+}
+
+class DigitalProduct extends Product
+{
+  public function __construct(int $cost)
   {
-    echo "<div>
-            <h2>{$this->title}</h2>
-            <p>{$this->description}</p>
-            <p>{$this->size}</p>
-            <p>{$this->price}</p>
-          </div>";
+    $this->cost = $cost;
+  }
+
+  public function finalCost()
+  {
+    return $this->cost;
+  }
+
+  public function profit()
+  {
+    return $this->finalCost() / 100 * Product::PROFIT;
   }
 }
 
-class Car extends Product
+class CountableProduct extends DigitalProduct
 {
-  public $speed;
+  private $amount;
 
-  public function __construct(string $title, string $description, string $size, int $speed, int $price){
+  public function __construct(int $cost, int $amount)
+  {
+    $this->amount = $amount;
+    parent::__construct($cost);
+  }
 
-    $this->speed = $speed;
+  public function finalCost()
+  {
+    return $this->cost * $this->amount;
+  }
 
-    parent::__construct($title, $description, $size, $price);
+  public function profit()
+  {
+    return $this->finalCost() / 100 * Product::PROFIT;
+  }
+}
+
+class WeightProduct extends Product
+{
+  private $weight;
+
+  public function __construct(int $cost, float $weight)
+  {
+    $this->cost = $cost;
+    $this->weight = $weight;
+  }
+
+  public function finalCost()
+  {
+    return $this->cost * $this->weight;
+  }
+  
+  public function profit()
+  {
+    return $this->finalCost() / 100 * Product::PROFIT;
+  }
+}
+
+$obj1 = new DigitalProduct(20000000);
+$obj1->render();
+$obj2 = new CountableProduct(100, 2);
+$obj2->render();
+$obj3 = new WeightProduct(600, 0.3);
+$obj3->render();
+
+//Синглтон
+trait ForSingleton {
     
-  }
+  private function __construct() {  } 
 
-  public function render()
-  {
-    echo "<div>
-            <h2>{$this->title}</h2>
-            <p>{$this->description}</p>
-            <p>{$this->size}</p>
-            <p>{$this->speed} mph</p>
-            <p>{$this->price} RUB</p>
-          </div>";
-  }
+  
+  public static function getInstance() {
+      if ( empty(self::$instance) ) {
+          self::$instance = new self();
+      }
+      return self::$instance;                     
+  }   
 
 }
 
-class Tire extends Product
+class Singleton
 {
-  public $treadDepth;
-
-  public function __construct(string $title, string $description, string $size, int $treadDepth, int $price){
-
-    $this->treadDepth = $treadDepth;
-
-    parent::__construct($title, $description, $size, $price);
-    
+  
+  private static $instance;
+  
+public function doAction() { 
+   echo "Singleton";
   }
+  use ForSingleton;
 
-  public function render()
-  {
-    echo "<div>
-            <h2>{$this->title}</h2>
-            <p>{$this->description}</p>
-            <p>{$this->size}</p>
-            <p>{$this->treadDepth} mm</p>
-            <p>{$this->price} RUB</p>
-          </div>";
-  }
 }
 
+$obj_1 = Singleton::getInstance();
+$obj_2 = Singleton::getInstance();
 
-$car1 = new Car('Volvo VNX', 'The Volvo VNX is built specifically for the needs of heavy-haul trucking operations', 'Huge', 115, 20000000);
-$car1->render();
-
-$yokogama = new Tire('ICEGUARD IG51V', 'Designed to deliver durability and handling to your crossover, SUV or truck in winter conditions', 'Medium', 13, 10000);
-$yokogama->render();
-
-/*
-Ключевое слово static, написанное перед присваиванием значения локальной переменной, приводит к следующим эффектам:
--Присваивание выполняется только один раз, при первом вызове функции
--Значение помеченной таким образом переменной сохраняется после окончания работы функции
--При последующих вызовах функции вместо присваивания переменная получает сохраненное ранее значение
-
-Такое использование слова static называется статическая локальная переменная.
-
-class A
-{
-  public function foo() {
-  static $x = 0;
-  echo ++$x;
-  }
-}
-$a1 = new A();
-$a2 = new A();
-
-$a1->foo();//1
-$a2->foo();//2
-$a1->foo();//3
-$a2->foo();//4
-// методы существуют в единственном экземпляре
-*/
-
-/*
-Наследование класса (и метода) приводит к тому, что создается новый метод
-class A {
-  public function foo() {
-      static $x = 0;
-      echo ++$x;
-  }
-}
-class B extends A {
-}
-$a1 = new A();
-$b1 = new B();
-$a1->foo(); //1
-$b1->foo(); //1
-$a1->foo(); //2
-$b1->foo(); //2
-*/
-
-//то же, что и ранее, НО в случае отсутствия аргументов в конструктор класса, круглые скобки после названия класса можно опустить.
-class A {
-  public function foo() {
-      static $x = 0;
-      echo ++$x;
-  }
-}
-class B extends A {
-}
-$a1 = new A;
-$b1 = new B;
-$a1->foo(); //1
-$b1->foo(); //1
-$a1->foo(); //2
-$b1->foo(); //2
+var_dump($obj_1 === $obj_2);    // The Same object
