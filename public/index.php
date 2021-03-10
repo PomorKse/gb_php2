@@ -12,14 +12,19 @@ try {
     
 
     //Формируем запрос в БД, используем объект $db класса PDO, помещаем данные в ассоц.массив
-    $query = $db->query("SELECT * FROM `products` limit $limit");
-    $products = ($query->fetchAll(PDO::FETCH_ASSOC));
+    if (isset($id)) {
+        $query = $db->query("SELECT * FROM `products` WHERE id>$id limit $limit");
+    }else{
+        $query = $db->query("SELECT * FROM `products` WHERE id>0 limit $limit");
+    }
+    $products = $query->fetchAll(PDO::FETCH_ASSOC);
+    $id = end($products);
 
     $content = [
-        'title' => 'Products',
+        'title'    => 'Products',
         'products' => $products,
-        'limit' => $limit,
-        'count' => count($products)
+        'limit'    => $limit,
+        'count'    => count($products),
     ];
     $template = $twig->render('index.tmpl', $content);
     echo $template;
