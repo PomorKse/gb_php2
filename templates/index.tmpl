@@ -2,19 +2,29 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ title|title }}</title>
-    <link rel="stylesheet" type="text/css" href="style.css"/>
+    <link rel="stylesheet" type="text/css" href="../public/css/style.css"/>
 </head>
 
 <body>
 
 <div id="main">
     <div class="post_title"><h2>{{ title|title }}</h2></div>
-    <div class="gallery">
-        {% for image in images %}
-            <a href="{{path}}{{image}}" target="_blank"><img src="{{path}}{{image}}" width="70" height="70" style="margin-right: 20px"/></a>
+    <div class="container">
+        {% for product in products %}
+            <div class="product">
+                <div class='product-item'>
+                    <h4 class='product-name'>{{product.name}}</h4>
+                    <p class='product-short-description'>{{product.short_description}}</p>
+                    <h5 class='product-price'>{{product.price}}</h5>
+                    <input type='submit' name='submit' value='More ...'>
+                </div>
+            </div>
         {% endfor %}
+        {{id.id}}
+        <a href="?limit={{count + 4}}" class="add-button">Explore more...</a>
+
     </div>
-</div>
+
 
 </body>
 </html>
