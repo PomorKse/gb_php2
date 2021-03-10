@@ -1,4 +1,4 @@
 <?php
 require_once '../vendor/twig_load.php';
 
-define("IMG_PATH", '/public/img/');
+$db = new PDO('mysql:host=localhost;dbname=gb_gallery', 'root', '');
